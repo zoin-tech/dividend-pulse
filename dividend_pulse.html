@@ -1,169 +1,1371 @@
-if (idx === 3 && !window._priceDrawn) { drawPriceChart(); window._priceDrawn = true; }
-  if (idx === 4 && !window._spreadDrawn) { drawSpreadChart(); window._spreadDrawn = true; }
-  if (idx === 5 && !window._distDrawn) { drawDistChart(); window._distDrawn = true; }
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DIVIDEND PULSE · 红利低波</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+--bg: #faf7f2;
+--card: #ffffff;
+--border: #ede8e0;
+--border2: #e8e0d5;
+--red: #e8473f;
+--red-light: #fff0ef;
+--red-mid: #fde8e8;
+--green: #2aad6e;
+--green-light: #edfaf3;
+--green-mid: #d4f2e4;
+--blue: #4a8cff;
+--blue-light: #eef4ff;
+--orange: #f07c3a;
+--orange-light: #fff4ec;
+--purple: #8b5cf6;
+--purple-light: #f3f0ff;
+--gold: #d4960a;
+--gold-light: #fffbeb;
+--text: #1a1a1a;
+--text2: #4a4a4a;
+--text3: #888;
+--text4: #bbb;
+--tag-red-bg: #e8473f;
+--tag-red-text: #fff;
+--section-label: #c0392b;
 }
-
+body {
+background: var(--bg);
+font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+color: var(--text);
+min-height: 100vh;
+padding: 0;
+}
+/* ── TOP NAV ── */
+.topbar {
+background: #fff;
+border-bottom: 1px solid var(--border);
+padding: 0 20px;
+height: 48px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+position: sticky;
+top: 0;
+z-index: 50;
+}
+.topbar-left {
+display: flex;
+align-items: center;
+gap: 10px;
+}
+.logo-box {
+width: 32px; height: 32px;
+background: var(--red);
+border-radius: 8px;
+display: flex; align-items: center; justify-content: center;
+color: #fff;
+font-size: 16px;
+font-weight: 700;
+flex-shrink: 0;
+}
+.topbar-title {
+font-size: 13px;
+font-weight: 700;
+color: var(--red);
+letter-spacing: 1px;
+}
+.topbar-sub {
+font-size: 11px;
+color: var(--text3);
+}
+.topbar-right {
+display: flex;
+align-items: center;
+gap: 12px;
+}
+.topbar-date {
+font-size: 12px;
+color: var(--text3);
+}
+.page-tabs {
+display: flex;
+gap: 4px;
+}
+.page-tab {
+padding: 4px 10px;
+border-radius: 5px;
+font-size: 11px;
+cursor: pointer;
+border: 1px solid var(--border);
+background: #fff;
+color: var(--text3);
+transition: all 0.15s;
+white-space: nowrap;
+}
+.page-tab.active {
+background: var(--red);
+color: #fff;
+border-color: var(--red);
+}
+/* ── MAIN ── */
+.main {
+max-width: 900px;
+margin: 0 auto;
+padding: 20px 16px 48px;
+}
+/* PAGE visibility */
+.page { display: none; }
+.page.active { display: block; }
+/* ── SECTION HEADER ── */
+.section-header {
+display: flex;
+align-items: center;
+gap: 8px;
+margin: 0 0 12px;
+}
+.section-bar {
+width: 4px; height: 16px;
+background: var(--red);
+border-radius: 2px;
+flex-shrink: 0;
+}
+.section-title {
+font-size: 13px;
+font-weight: 600;
+color: var(--text2);
+letter-spacing: 0.3px;
+}
+/* ── CARD ── */
+.card {
+background: var(--card);
+border: 1px solid var(--border);
+border-radius: 14px;
+padding: 20px;
+margin-bottom: 14px;
+}
+/* ── HERO CARD (page 1) ── */
+.hero-card {
+background: #fff;
+border: 1.5px solid #f0e8e8;
+border-radius: 16px;
+padding: 24px 24px 20px;
+margin-bottom: 14px;
+position: relative;
+}
+.hero-badge {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+background: var(--red);
+color: #fff;
+font-size: 12px;
+font-weight: 700;
+padding: 4px 12px;
+border-radius: 6px;
+margin-bottom: 6px;
+}
+.hero-date-line {
+font-size: 11px;
+color: var(--text3);
+margin-bottom: 18px;
+}
+.hero-golden {
+font-size: 17px;
+font-weight: 700;
+color: var(--text);
+margin-bottom: 18px;
+display: flex;
+align-items: center;
+gap: 8px;
+flex-wrap: wrap;
+}
+.hero-golden .diamond { color: #5b9bd5; font-size: 18px; }
+.hero-two-col {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 12px;
+}
+@media (max-width: 500px) {
+.hero-two-col { grid-template-columns: 1fr; }
+}
+.hero-price-box {
+background: var(--green-light);
+border: 1px solid #b8ecd4;
+border-radius: 10px;
+padding: 16px 18px;
+}
+.hero-price-label {
+font-size: 11px;
+color: var(--green);
+font-weight: 600;
+margin-bottom: 8px;
+display: flex; align-items: center; gap: 4px;
+}
+.hero-price-label .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+.hero-price-num {
+font-size: 38px;
+font-weight: 700;
+color: var(--text);
+line-height: 1;
+margin-bottom: 6px;
+}
+  .hero-price-chg {
+display: inline-flex; align-items: center; gap: 4px;
+background: var(--red);
+color: #fff;
+font-size: 12px;
+font-weight: 600;
+padding: 2px 8px;
+border-radius: 4px;
+margin-bottom: 8px;
+}
+.hero-price-time {
+font-size: 10px;
+color: var(--text3);
+}
+.hero-score-box {
+background: var(--red-light);
+border: 1px solid #f5ccc8;
+border-radius: 10px;
+padding: 16px 18px;
+}
+.hero-score-label {
+font-size: 11px;
+color: var(--red);
+font-weight: 600;
+margin-bottom: 8px;
+display: flex; align-items: center; gap: 4px;
+}
+.hero-score-label .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
+.hero-score-num {
+font-size: 48px;
+font-weight: 700;
+color: var(--red);
+line-height: 1;
+margin-bottom: 8px;
+display: flex; align-items: center; gap: 8px;
+}
+.grade-badge {
+background: var(--red);
+color: #fff;
+font-size: 14px;
+font-weight: 700;
+width: 28px; height: 28px;
+border-radius: 6px;
+display: flex; align-items: center; justify-content: center;
+}
+.hero-score-sub {
+font-size: 10px;
+color: var(--text3);
+display: flex; align-items: center; gap: 4px;
+}
+/* ── THREE METRICS ── */
+.three-metrics {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 10px;
+margin-bottom: 14px;
+}
+@media (max-width: 500px) {
+.three-metrics { grid-template-columns: 1fr; }
+}
+.metric-box {
+background: #fff;
+border: 1px solid var(--border);
+border-radius: 12px;
+padding: 14px 16px;
+}
+.metric-box-label {
+font-size: 10px;
+color: var(--text3);
+margin-bottom: 6px;
+line-height: 1.4;
+}
+.metric-box-label .icon { margin-right: 3px; }
+.metric-box-value {
+font-size: 28px;
+font-weight: 700;
+line-height: 1;
+margin-bottom: 4px;
+}
+.metric-box-value.negative { color: var(--green); }
+.metric-box-value.blue-val { color: var(--blue); }
+.metric-box-value.green-val { color: var(--green); }
+.metric-box-desc {
+font-size: 11px;
+font-weight: 600;
+color: var(--text2);
+}
+/* ── OVERVIEW PAGE ── */
+.overview-title {
+font-size: 26px;
+font-weight: 700;
+color: var(--text);
+margin-bottom: 4px;
+line-height: 1.2;
+}
+.overview-sub {
+font-size: 12px;
+color: var(--text3);
+margin-bottom: 14px;
+}
+.overview-tags {
+display: flex; gap: 8px; flex-wrap: wrap;
+margin-bottom: 14px;
+  }
+.otag {
+font-size: 11px;
+font-weight: 600;
+padding: 3px 10px;
+border-radius: 4px;
+}
+.otag-price { background: #ffe8e8; color: var(--red); }
+.otag-score { background: #fff0e0; color: var(--orange); }
+.otag-value { background: #e8f0ff; color: var(--blue); }
+.otag-spread { background: #e8f8ee; color: var(--green); }
+.otag-strength { background: #f3e8ff; color: var(--purple); }
+.golden-banner {
+background: linear-gradient(135deg, #2aad6e 0%, #22c55e 100%);
+color: #fff;
+border-radius: 10px;
+padding: 12px 18px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 14px;
+font-size: 13px;
+font-weight: 600;
+}
+.golden-banner .val { font-size: 18px; font-weight: 700; }
+/* value boxes row */
+.val-row {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 10px;
+margin-bottom: 10px;
+}
+@media (max-width: 500px) { .val-row { grid-template-columns: 1fr; } }
+.val-box {
+border: 1px solid var(--border);
+border-radius: 10px;
+padding: 14px 16px;
+background: #fff;
+}
+.val-box-label { font-size: 10px; color: var(--text3); margin-bottom: 4px; }
+.val-box-num { font-size: 24px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+.val-box-num.green { color: var(--green); }
+.val-box-num.purple { color: var(--purple); }
+.val-box-num.red { color: var(--red); }
+.val-box-num.blue { color: var(--blue); }
+.val-box-sub { font-size: 10px; color: var(--text3); }
+/* spread bar */
+.spread-row {
+background: #fff;
+border: 1px solid var(--border);
+border-radius: 10px;
+padding: 14px 16px;
+margin-bottom: 10px;
+}
+.spread-header {
+display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+}
+.spread-label { font-size: 11px; color: var(--text3); }
+.spread-val { font-size: 22px; font-weight: 700; color: var(--blue); }
+.spread-badge { background: var(--blue); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; }
+.spread-track {
+height: 8px;
+background: var(--border);
+border-radius: 4px;
+position: relative;
+display: flex;
+overflow: hidden;
+margin-bottom: 6px;
+}
+.spread-seg {
+flex: 1;
+border-right: 2px solid var(--bg);
+}
+.spread-seg:last-child { border-right: none; }
+.spread-seg.s1 { background: #ff4d4d; }
+.spread-seg.s2 { background: #ffa040; }
+.spread-seg.s3 { background: #ffd700; }
+.spread-seg.s4-active { background: var(--blue); }
+.spread-seg.s5 { background: #aaa; }
+.spread-labels {
+display: flex;
+justify-content: space-between;
+font-size: 9px;
+color: var(--text4);
+}
+/* RSI + 年线 two col */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+@media (max-width: 500px) { .two-col { grid-template-columns: 1fr; } }
+.indicator-box {
+background: #fff;
+border: 1px solid var(--border);
+border-radius: 10px;
+padding: 14px 16px;
+}
+.ind-label { font-size: 10px; color: var(--text3); margin-bottom: 6px; }
+.ind-val { font-size: 30px; font-weight: 700; line-height: 1; margin-bottom: 6px; }
+.ind-val.blue { color: var(--blue); }
+.ind-val.green { color: var(--green); }
+.ind-val.red { color: var(--red); }
+.ind-tag {
+display: inline-block;
+font-size: 10px;
+font-weight: 600;
+  padding: 2px 8px;
+border-radius: 4px;
+margin-bottom: 4px;
+}
+.ind-tag.blue { background: var(--blue-light); color: var(--blue); }
+.ind-tag.green { background: var(--green-light); color: var(--green); }
+.ind-sub { font-size: 10px; color: var(--text3); }
+/* segment scale */
+.scale-track {
+display: flex;
+height: 6px;
+border-radius: 3px;
+overflow: hidden;
+margin: 6px 0 4px;
+}
+.scale-seg { flex: 1; }
+.scale-seg.active-seg { outline: 2px solid var(--blue); outline-offset: 1px; }
+.scale-labels { display: flex; justify-content: space-between; font-size: 8px; color: var(--text4); }
+/* crowd + bb + 52w */
+.three-small { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px; }
+@media (max-width: 500px) { .three-small { grid-template-columns: 1fr; } }
+.small-box { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; text-align: center; }
+.small-label { font-size: 9px; color: var(--text3); margin-bottom: 4px; }
+.small-val { font-size: 22px; font-weight: 700; color: var(--orange); margin-bottom: 2px; }
+.small-val.blue { color: var(--blue); }
+.small-val.red { color: var(--red); }
+.small-desc { font-size: 10px; color: var(--text3); }
+/* today advice */
+.advice-card {
+background: #fff;
+border: 1px solid var(--border);
+border-radius: 12px;
+padding: 16px 18px;
+margin-bottom: 10px;
+}
+.advice-title { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 10px; }
+.advice-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.pill {
+display: inline-flex; align-items: center; gap: 4px;
+font-size: 11px; font-weight: 500;
+padding: 5px 12px;
+border-radius: 6px;
+}
+.pill-blue { background: var(--blue-light); color: var(--blue); }
+.pill-green { background: var(--green-light); color: var(--green); }
+.pill-orange { background: var(--orange-light); color: var(--orange); }
+.advice-note { font-size: 10px; color: var(--text3); line-height: 1.6; }
+/* ── STRENGTH PAGE ── */
+.strength-card {
+background: #fff;
+border: 1px solid var(--border);
+border-radius: 14px;
+padding: 20px;
+margin-bottom: 14px;
+}
+.strength-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 16px; }
+.strength-two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+@media (max-width: 500px) { .strength-two { grid-template-columns: 1fr; } }
+.str-block {}
+.str-block-label { font-size: 10px; color: var(--text3); margin-bottom: 6px; font-weight: 500; }
+.str-block-val { font-size: 36px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+.str-block-val.blue { color: var(--blue); }
+.str-block-val.green { color: var(--green); }
+.seg-bar { display: flex; gap: 2px; margin: 6px 0 3px; }
+.seg-item {
+flex: 1; height: 6px; border-radius: 2px; background: var(--border);
+font-size: 0;
+transition: background 0.3s;
+}
+.seg-item.active-blue { background: var(--blue); }
+.seg-item.active-green { background: var(--green); }
+.seg-item-labels { display: flex; justify-content: space-between; font-size: 8px; color: var(--text4); }
+.seg-badge { display: inline-block; background: var(--blue-light); color: var(--blue); font-size: 10px; font-weight: 600; padding: 2px 10px; border-radius: 4px; margin-bottom: 3px; }
+.seg-badge.green { background: var(--green-light); color: var(--green); }
+.str-block-sub { font-size: 10px; color: var(--text3); }
+.range-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.range-table th { text-align: left; color: var(--text3); font-weight: 400; padding: 6px 8px; background: var(--bg); font-size: 10px; }
+.range-table td { padding: 8px 8px; border-bottom: 1px solid var(--border); color: var(--text2); }
+.range-table tr.active-row td { background: var(--blue-light); font-weight: 600; color: var(--blue); }
+.range-table tr.active-row.green-row td { background: var(--green-light); color: var(--green); }
+.now-badge { background: var(--blue); color: #fff; font-size: 9px; padding: 1px 6px; border-radius: 3px; margin-left: 4px; }
+.now-badge.green { background: var(--green); }
+.arrow-icon { color: var(--blue); margin-right: 4px; }
+.arrow-icon.green { color: var(--green); }
+/* ── PRICE PAGE ── */
+.chart-area {
+background: #fff;
+border: 1px solid var(--border);
+border-radius: 14px;
+padding: 20px;
+margin-bottom: 14px;
+}
+.chart-title { font-size: 13px; font-weight: 700; margin-bottom: 16px; }
+.price-chart-wrap { position: relative; height: 200px; margin-bottom: 14px; }
+canvas#priceChart { width: 100% !important; height: 100% !important; border-radius: 8px; }
+.price-note { font-size: 10px; color: var(--text3); margin-bottom: 14px; }
+.period-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+@media (max-width: 400px) { .period-row { grid-template-columns: 1fr; } }
+  .period-box { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+.period-label { font-size: 10px; color: var(--text3); margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+.period-val { font-size: 20px; font-weight: 700; color: var(--green); }
+/* ── VALUE PAGE ── */
+.value-top3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+@media (max-width: 500px) { .value-top3 { grid-template-columns: 1fr; } }
+.vt-box { border-radius: 10px; padding: 16px; text-align: center; }
+.vt-box.green-bg { background: var(--green-light); border: 1px solid #b8ecd4; }
+.vt-box.purple-bg { background: var(--purple-light); border: 1px solid #d4c4f8; }
+.vt-box.blue-bg { background: var(--blue-light); border: 1px solid #c0d8ff; }
+.vt-label { font-size: 10px; color: var(--text3); margin-bottom: 6px; }
+.vt-val { font-size: 30px; font-weight: 700; line-height: 1; }
+.vt-val.green { color: var(--green); }
+.vt-val.purple { color: var(--purple); }
+.vt-val.blue { color: var(--blue); }
+.vt-sub { font-size: 10px; color: var(--text3); margin-top: 4px; }
+.chart-mini { height: 80px; position: relative; margin: 10px 0; }
+canvas#spreadChart { width: 100% !important; height: 100% !important; }
+.val3-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px; }
+@media (max-width: 500px) { .val3-row { grid-template-columns: 1fr; } }
+.v3-box { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+.v3-label { font-size: 10px; color: var(--text3); margin-bottom: 4px; }
+.v3-val { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+.v3-val.blue-num { color: var(--blue); }
+.v3-val.purple-num { color: var(--purple); }
+.v3-val.green-num { color: var(--green); }
+.v3-sub { font-size: 9px; color: var(--text3); }
+.hint-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 14px; margin-bottom: 10px; font-size: 10px; color: #92400e; line-height: 1.6; }
+.val-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.val-table th { text-align: left; color: var(--text3); font-weight: 400; padding: 6px 8px; background: var(--bg); font-size: 10px; }
+.val-table td { padding: 9px 8px; border-bottom: 1px solid var(--border); color: var(--text2); }
+.val-table tr.active-row td { background: var(--blue-light); font-weight: 600; color: var(--blue); }
+.dot-indicator { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+.dot-red { background: var(--red); }
+.dot-orange { background: var(--orange); }
+.dot-yellow { background: #f59e0b; }
+.dot-blue { background: var(--blue); }
+.dot-green { background: var(--green); }
+/* ── SCORE PAGE ── */
+.score-big-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin-bottom: 14px; }
+.score-hero-row { display: flex; align-items: flex-start; gap: 24px; margin-bottom: 20px; flex-wrap: wrap; }
+.score-left-num { font-size: 64px; font-weight: 700; color: var(--red); line-height: 1; }
+.score-grade { margin-top: 8px; }
+.score-action { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.score-action-sub { font-size: 12px; color: var(--text3); }
+.score-right-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; flex: 1; min-width: 200px; }
+.score-info-box { background: var(--bg); border-radius: 8px; padding: 12px 14px; }
+.sib-label { font-size: 10px; color: var(--text3); margin-bottom: 4px; }
+.sib-val { font-size: 20px; font-weight: 700; color: var(--text); }
+.sib-chg { font-size: 11px; color: var(--red); margin-top: 2px; }
+.sib-sub { font-size: 10px; color: var(--text3); }
+.rules-box { background: var(--bg); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+.rules-title { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.rule-item { font-size: 11px; color: var(--text2); line-height: 1.8; padding-left: 2px; }
+.rule-item::before { content: ''; margin-right: 0; }
+.grade-scale { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.gs-item { flex: 1; min-width: 80px; padding: 8px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; font-size: 10px; font-weight: 600; color: var(--text3); text-align: center; }
+.gs-item.gs-active { background: var(--red); color: #fff; border-color: var(--red); }
+.dist-title { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 12px; display: flex; justify-content: space-between; }
+.dist-title span { font-size: 10px; color: var(--text3); font-weight: 400; }
+.dist-chart-wrap { position: relative; height: 130px; }
+canvas#distChart { width: 100% !important; height: 100% !important; }
+.dist-stats { display: flex; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
+.ds { font-size: 11px; }
+.ds-label { color: var(--text3); }
+.ds-val { font-weight: 700; }
+.ds-val.green { color: var(--green); }
+.ds-val.red { color: var(--red); }
+.warning-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 14px; margin-top: 14px; font-size: 10px; color: #92400e; line-height: 1.6; }
+.warning-box::before { content: '⚠ '; }
+/* ── POSITION PAGE ── */
+.pos-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 14px; }
+.pos-title { font-size: 13px; font-weight: 700; margin-bottom: 16px; }
+.pos52-label { font-size: 11px; color: var(--text3); margin-bottom: 8px; display: flex; justify-content: space-between; }
+.pos52-label span { font-size: 11px; font-weight: 700; color: var(--red); }
+.rainbow-track {
+width: 100%; height: 16px; border-radius: 8px;
+background: linear-gradient(90deg, #2aad6e 0%, #4fc8e4 25%, #ffd700 50%, #ff9b3e 75%, #e8473f 100%);
+position: relative; margin-bottom: 6px;
+}
+.rainbow-marker {
+position: absolute;
+top: -3px;
+width: 4px; height: 22px;
+background: #1a1a1a;
+border-radius: 2px;
+left: 10%;
+transform: translateX(-50%);
+}
+.rainbow-ends { display: flex; justify-content: space-between; font-size: 9px; color: var(--text3); margin-bottom: 16px; }
+.pos-three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+@media (max-width: 500px) { .pos-three { grid-template-columns: 1fr; } }
+.pos-item { text-align: center; background: var(--bg); border-radius: 10px; padding: 14px; }
+.pi-label { font-size: 9px; color: var(--text3); margin-bottom: 4px; line-height: 1.4; }
+.pi-val { font-size: 26px; font-weight: 700; color: var(--red); margin-bottom: 2px; }
+.pi-val.green { color: var(--green); }
+.pi-val.black { color: var(--text); }
+.pi-desc { font-size: 10px; color: var(--text3); }
+/* ── SUMMARY PAGE ── */
+.summary-wrap { background: #fff; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 14px; }
+  .sum-header {
+background: var(--red);
+color: #fff;
+padding: 18px 20px;
+}
+.sum-header-title { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+.sum-header-sub { font-size: 11px; opacity: 0.85; }
+.sum-section { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+.sum-section:last-child { border-bottom: none; }
+.sum-sec-title {
+font-size: 12px; font-weight: 700; color: var(--text2);
+margin-bottom: 10px;
+display: flex; align-items: center; gap: 6px;
+}
+.sum-sec-title .emoji { font-size: 14px; }
+.sum-item { display: flex; align-items: baseline; gap: 8px; margin-bottom: 7px; font-size: 12px; }
+.sum-bullet { color: var(--red); font-size: 14px; line-height: 1; flex-shrink: 0; }
+.sum-text { color: var(--text2); line-height: 1.5; }
+.sum-text strong { color: var(--text); }
+.sum-text .highlight { color: var(--green); font-weight: 700; }
+.sum-text .highlight-red { color: var(--red); font-weight: 700; }
+.pe-formula {
+background: var(--gold-light);
+border: 1px solid #fde68a;
+border-radius: 8px;
+padding: 8px 12px;
+font-size: 11px;
+color: #92400e;
+margin-top: 6px;
+font-weight: 600;
+}
+.sum-comment {
+background: var(--bg);
+border-left: 3px solid var(--orange);
+padding: 12px 16px;
+border-radius: 0 8px 8px 0;
+font-size: 12px;
+color: var(--text2);
+line-height: 1.7;
+margin: 0 20px 16px;
+}
+.sum-risk {
+background: var(--red-light);
+border: 1px solid #f5ccc8;
+border-radius: 8px;
+padding: 10px 14px;
+font-size: 11px;
+color: #7a2020;
+line-height: 1.6;
+margin: 0 20px 16px;
+    }
+  /* ── FOOTER ── */
+.page-footer {
+max-width: 900px; margin: 0 auto;
+padding: 0 16px 24px;
+display: flex; justify-content: space-between; align-items: center;
+flex-wrap: wrap; gap: 8px;
+}
+.footer-source { font-size: 10px; color: var(--text3); }
+.footer-brand { font-size: 11px; font-weight: 700; color: var(--red); text-align: right; }
+.footer-brand-sub { font-size: 9px; color: var(--text3); }
+/* ── MOBILE SCROLL TABS ── */
+@media (max-width: 600px) {
+.page-tabs { overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
+.page-tabs::-webkit-scrollbar { display: none; }
+}
+/* ── PINK SUBHEADER TAG ── */
+.index-tag-bar {
+display: flex; align-items: center; justify-content: space-between;
+background: #fff0f5;
+border: 1px solid #fcd4e0;
+border-radius: 10px;
+padding: 10px 16px;
+margin-bottom: 14px;
+}
+.itb-left { display: flex; align-items: center; gap: 10px; }
+.itb-badge { background: linear-gradient(135deg, #ff6eb0, #e8473f); color: #fff; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; display: flex; align-items: center; gap: 4px; }
+.itb-badge .diamond { font-size: 12px; }
+.itb-name { font-size: 13px; font-weight: 700; color: var(--text); }
+.itb-sub { font-size: 10px; color: var(--text3); }
+.itb-date { font-size: 11px; color: var(--text3); }
+</style>
+</head>
+<body>
+<!-- TOP BAR -->
+<div class="topbar">
+<div class="topbar-left">
+<div class="logo-box">复</div>
+<div>
+<div class="topbar-title">DIVIDEND PULSE · 红利低波</div>
+<div class="topbar-sub" id="page-subtitle">HERO · 今日红利低波要点</div>
+</div>
+</div>
+<div class="topbar-right">
+<div class="topbar-date" id="today-date">2026-06-16 周二</div>
+<div class="page-tabs" id="page-tabs">
+<div class="page-tab active" onclick="switchPage(0)" data-sub="HERO · 今日红利低波要点">1/7</div>
+<div class="page-tab" onclick="switchPage(1)" data-sub="OVERVIEW · 全维度总览">2/7</div>
+<div class="page-tab" onclick="switchPage(2)" data-sub="STRENGTH · RSI + 乖离">3/7</div>
+<div class="page-tab" onclick="switchPage(3)" data-sub="PRICE · 走势 + 年线">4/7</div>
+<div class="page-tab" onclick="switchPage(4)" data-sub="VALUE · 股债性价比">5/7</div>
+<div class="page-tab" onclick="switchPage(5)" data-sub="SCORE · 评分 + 同分回测">6/7</div>
+<div class="page-tab" onclick="switchPage(6)" data-sub="POSITION · 位置 + 动量">7/7</div>
+<div class="page-tab" onclick="switchPage(7)" data-sub="SUMMARY · 每日总结">📋</div>
+</div>
+</div>
+</div>
+<div class="main">
+<!-- ══════════════ PAGE 1: HERO ══════════════ -->
+<div class="page active" id="pg0">
+<div class="hero-card">
+<div class="hero-badge">A · 综合评分 95</div>
+<div class="hero-date-line">DIVIDEND PULSE · 红利低波 · 2026-06-16 周二</div>
+<div class="hero-golden">
+<span class="diamond">💎</span>
+黄金机会 红利低波远低于年线，乖离 -3.05% · 2026-06-16
+</div>
+<div class="hero-two-col">
+<div class="hero-price-box">
+<div class="hero-price-label"><span class="dot"></span>红利低波</div>
+<div class="hero-price-num">1.149</div>
+<div><span class="hero-price-chg">▼ -1.03%</span></div>
+<div class="hero-price-time" style="margin-top:6px">⏱ 取数 · 2026-06-16 11:53 (UTC+8)</div>
+</div>
+<div class="hero-score-box">
+<div class="hero-score-label"><span class="dot"></span>综合评分</div>
+<div class="hero-score-num">95 <span class="grade-badge">A</span></div>
+<div class="hero-score-sub">📊 根据历史数据回测得到</div>
+</div>
+</div>
+</div>
+<div class="three-metrics">
+<div class="metric-box">
+<div class="metric-box-label"><span class="icon">📊</span>年线偏离 · 现价 vs 250日均线</div>
+<div class="metric-box-value negative">-3.05%</div>
+<div class="metric-box-desc">长线买点 · 大幅加仓</div>
+</div>
+<div class="metric-box">
+<div class="metric-box-label"><span class="icon">⚡</span>RSI(14) · 短期强弱</div>
+<div class="metric-box-value blue-val">40.9</div>
+<div class="metric-box-desc">中性偏卖区 · 常规定投</div>
+</div>
+<div class="metric-box">
+<div class="metric-box-label"><span class="icon">💰</span>股息率 DY · 越高越值得长持</div>
+<div class="metric-box-value green-val">4.84%</div>
+<div class="metric-box-desc">中证红利</div>
+</div>
+</div>
+<div style="text-align:center;font-size:11px;color:var(--text3);padding:4px 0 8px">
+🐾 后续 6 张依次：总览 · 强弱 · 走势 · 估值 · 评分 · 位置
+</div>
+</div>
+<!-- ══════════════ PAGE 2: OVERVIEW ══════════════ -->
+<div class="page" id="pg1">
+<div class="card" style="padding-bottom:14px">
+<div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1px;margin-bottom:6px">◆ DIVIDEND PULSE</div>
+<div class="overview-title">今日红利低波情绪观察</div>
+<div class="overview-sub">本图全部针对 红利低波 · 中证红利低波风格指数</div>
+<div class="overview-tags">
+<span class="otag otag-price">● PRICE</span>
+<span class="otag otag-score">● SCORE</span>
+<span class="otag otag-value">● VALUE</span>
+<span class="otag otag-spread">● SPREAD</span>
+<span class="otag otag-strength">● STRENGTH</span>
+</div>
+<div class="golden-banner">
+<span>🏆 黄金机会 &nbsp; 年线乖离</span>
+<span class="val">-3.05%</span>
+</div>
+<div class="section-header"><div class="section-bar"></div><div class="section-title">价格 + 评分 · 红利低波</div></div>
+<div class="two-col" style="margin-bottom:14px">
+<div class="indicator-box">
+<div class="ind-label">💎 红利低波</div>
+<div style="display:flex;justify-content:space-between;align-items:center">
+<div class="ind-val" style="color:var(--text);font-size:36px">1.149</div>
+<div style="background:var(--red);color:#fff;font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600">▼ -1.03%</div>
+</div>
+<div style="font-size:10px;color:var(--text3);margin-top:4px">中证红利低波风格指数代表行情</div>
+<div style="font-size:10px;color:var(--text3)">⏱ 取数 · 2026-06-16 11:53 (UTC+8)</div>
+</div>
+<div class="indicator-box">
+<div class="ind-label">综合评分 · 0-100 · 历史回溯</div>
+<div class="ind-val red" style="font-size:48px;display:flex;align-items:center;gap:8px">95 <span class="grade-badge" style="font-size:16px;width:32px;height:32px">A</span></div>
+<div style="font-size:11px;font-weight:700;color:var(--red)">极佳买入</div>
+<div style="font-size:10px;color:var(--text3)">📊 根据历史数据回测得到 · 非未来校测</div>
+</div>
+</div>
+<div class="section-header"><div class="section-bar"></div><div class="section-title">估值 · PE / PB / DY</div></div>
+<div class="val-row" style="margin-bottom:14px">
+<div class="val-box">
+<div class="val-box-label">PE 滚动 · 红利低波 TTM</div>
+<div class="val-box-num blue">7.78</div>
+<div class="val-box-sub">中证官方 · ©2026-06-15</div>
+</div>
+<div class="val-box">
+<div class="val-box-label">PB · 中证红利 代理</div>
+<div class="val-box-num purple">0.82</div>
+<div class="val-box-sub">danjuan · ©2026-06-15</div>
+</div>
+<div class="val-box">
+<div class="val-box-label">加权 DY · 红利低波</div>
+<div class="val-box-num green">4.84%</div>
+<div class="val-box-sub">中证官方 · ©2026-06-15</div>
+</div>
+</div>
+<div class="section-header"><div class="section-bar"></div><div class="section-title">股债性价比 · 中证红利 DY − 国债 10Y</div></div>
+<div class="spread-row" style="margin-bottom:14px">
+<div class="spread-header">
+<div>
+<div class="spread-label">📐 股债性价比 · 中证红利 − 国债 10Y</div>
+<div style="font-size:10px;color:var(--text3)">DY 4.84% − 10Y 1.75% · 历史 P45</div>
+</div>
+<div style="display:flex;align-items:center;gap:6px">
+<div class="spread-val">+3.10</div>
+<div class="spread-badge">股票占优</div>
+</div>
+</div>
+<div class="spread-track">
+<div class="spread-seg s1"></div>
+<div class="spread-seg s2"></div>
+<div class="spread-seg s3"></div>
+<div class="spread-seg s4-active"></div>
+<div class="spread-seg s5"></div>
+</div>
+<div class="spread-labels"><span>&lt;1</span><span>1-2</span><span>2-3</span><span style="color:var(--blue);font-weight:700">3-4 ◀</span><span>&gt;4</span></div>
+</div>
+<div class="section-header"><div class="section-bar"></div><div class="section-title">相对强弱 · RSI(14) + 年线乖离</div></div>
+<div class="two-col" style="margin-bottom:14px">
+<div class="indicator-box">
+<div class="ind-label">⚡ RSI(14) · 短期超买超卖</div>
+<div class="ind-val blue">40.9</div>
+<div class="ind-tag blue">中性偏卖区 · 常规定投</div>
+<div class="ind-sub">情绪：接近超卖</div>
+</div>
+<div class="indicator-box">
+<div class="ind-label">📊 年线乖离 · 长期趋势位置</div>
+<div class="ind-val green">-3.05%</div>
+<div class="ind-tag green">长线买点 · 大幅加仓</div>
+<div class="ind-sub">情绪：黄金机会</div>
+</div>
+</div>
+<div class="section-header"><div class="section-bar"></div><div class="section-title">资金面 + 位置 · 拥挤度 / 布林带 / 52w</div></div>
+<div class="three-small" style="margin-bottom:14px">
+<div class="small-box">
+<div class="small-label">拥挤度<br>A股资金集中度</div>
+<div class="small-val">48.8</div>
+<div class="small-desc">正常</div>
+</div>
+<div class="small-box">
+<div class="small-label">布林带位置<br>20日 BB%B</div>
+<div class="small-val blue">17%</div>
+<div class="small-desc">接近下轨·超跌</div>
+</div>
+<div class="small-box">
+<div class="small-label">52周位置<br>年内便宜/贵</div>
+<div class="small-val red">10%</div>
+<div class="small-desc">年内低位</div>
+</div>
+</div>
+<div class="section-header"><div class="section-bar"></div><div class="section-title">今日策略 · 综合建议</div></div>
+<div class="advice-card">
+<div class="advice-title">股债性价比 3.10（P45）· 股票占优 · 综合评分 A</div>
+<div class="advice-pills">
+<span class="pill pill-blue">📐 股债性价比偏优 · 加大定投</span>
+<span class="pill pill-green">📊 评分 A · 黄金机会、加大定投</span>
+<span class="pill pill-orange">↘ 远低于年线 · 长线买点·大幅加仓</span>
+</div>
+<div class="advice-note">
+✅ 股息差 3.10 处于近 10 年 P45，均值 2.952（范围 -1.129~6.117）；价格相对 250 日均线乖离 -3.05%；RSI(14) = 41
+</div>
+</div>
+</div>
+</div>
+<!-- ══════════════ PAGE 3: STRENGTH ══════════════ -->
+<div class="page" id="pg2">
+<div class="index-tag-bar">
+<div class="itb-left">
+<div class="itb-badge"><span class="diamond">💎</span> 红利低波</div>
+<div><div class="itb-name">中证红利低波风格</div><div class="itb-sub">本页全部指标针对 红利低波</div></div>
+</div>
+<div class="itb-date">2026-06-16 周二</div>
+</div>
+<div class="strength-card">
+<div class="strength-title">STRENGTH · RSI(14) + 年线乖离</div>
+<div class="strength-two">
+<div class="str-block">
+<div class="str-block-label">⚡ RSI(14) · 短期超买超卖</div>
+<div class="str-block-val blue">40.9</div>
+<div class="seg-badge">中性偏卖区 · 常规定投</div>
+<div class="str-block-sub">情绪：接近超卖</div>
+</div>
+<div class="str-block">
+<div class="str-block-label">📊 年线乖离 · 长期趋势位置</div>
+<div class="str-block-val green">-3.05%</div>
+<div class="seg-badge green">长线买点 · 大幅加仓</div>
+<div class="str-block-sub">情绪：黄金机会</div>
+</div>
+</div>
+<div style="background:var(--gold-light);border:1px solid #fde68a;border-radius:7px;padding:8px 12px;font-size:10px;color:#92400e;margin-bottom:16px">
+RSI(14) = 14 日相对强弱指数（Wilder 1978 推荐参数，业内事实标准）。> 70 超买（注意回调），< 30 超卖（机会区）。
+</div>
+<div class="section-header" style="margin-bottom:8px"><div class="section-bar"></div><div class="section-title">RSI 区间分级</div></div>
+<table class="range-table">
+<thead><tr><th>区间</th><th>情绪</th><th>操作建议</th></tr></thead>
+<tbody>
+<tr><td>● &lt;30 超卖</td><td>超卖</td><td>技术超卖 · 加大定投</td></tr>
+<tr class="active-row"><td>● <strong>30-50 接近超卖</strong></td><td>接近超卖</td><td><strong>中性偏卖区 · 常规定投</strong><span class="now-badge">现在</span></td></tr>
+<tr><td>● 50-70 中性</td><td>中性</td><td>强弱平衡 · 常规定投</td></tr>
+<tr><td>● 70-80 接近超买</td><td>接近超买</td><td>中性偏买区 · 谨慎追高</td></tr>
+<tr><td>● &gt;80 超买</td><td>超买</td><td>技术超买 · 止盈控仓</td></tr>
+</tbody>
+</table>
+<div style="height:16px"></div>
+<div class="section-header" style="margin-bottom:8px"><div class="section-bar"></div><div class="section-title">年线乖离 区间分级</div></div>
+<table class="range-table">
+<thead><tr><th>区间</th><th>情绪</th><th>操作建议</th></tr></thead>
+<tbody>
+<tr class="active-row green-row"><td><span class="arrow-icon green">▶</span>● <strong>&lt;-3% 远低于年线</strong></td><td><strong>黄金机会</strong></td><td><strong>长线买点 · 大幅加仓</strong><span class="now-badge green">现在</span></td></tr>
+<tr><td>● -3~0% 低于年线</td><td>长线买点</td><td>加大定投 · 价值入场</td></tr>
+<tr><td>● 0~+5% 贴近年线</td><td>估值偏低</td><td>可适当加仓 · 常规定投</td></tr>
+<tr><td>● +5~+10% 略高于年线</td><td>估值合理</td><td>常规定投 · 标准持有</td></tr>
+<tr><td>● +10~+15% 高于年线</td><td>估值偏高</td><td>谨慎追高 · 控制仓位</td></tr>
+<tr><td>● &gt;+15% 远高于年线</td><td>高位警报</td><td>止盈控仓 · 提示卖出</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- ══════════════ PAGE 4: PRICE ══════════════ -->
+<div class="page" id="pg3">
+<div class="index-tag-bar">
+<div class="itb-left">
+<div class="itb-badge"><span class="diamond">💎</span> 红利低波</div>
+<div><div class="itb-name">中证红利低波风格</div><div class="itb-sub">本页全部指标针对 红利低波</div></div>
+</div>
+<div class="itb-date">2026-06-16 周二</div>
+</div>
+<div class="chart-area">
+<div class="chart-title">PRICE · 价格走势 + 250 日均线 + 多周期动量</div>
+<div class="price-chart-wrap">
+<canvas id="priceChart"></canvas>
+</div>
+<div class="price-note">实线 = 收盘价（涨日红 / 跌日绿）· 🟠 橙色虚线 = 250 日均线（年线，长期趋势线）</div>
+<div class="period-row">
+<div class="period-box">
+<div class="period-label">📉 近 5 日</div>
+<div class="period-val">-1.29%</div>
+</div>
+<div class="period-box">
+<div class="period-label">📉 近 10 日</div>
+<div class="period-val">-2.79%</div>
+</div>
+<div class="period-box">
+<div class="period-label">📉 近 20 日</div>
+<div class="period-val">-1.71%</div>
+</div>
+</div>
+<div style="background:var(--orange-light);border:1px solid #fdd5a8;border-radius:7px;padding:8px 12px;font-size:10px;color:#7a3c10;margin-top:12px;line-height:1.6">
+250 日均线（年线）= 过去一年的平均价。价格相对年线乖离反映长期趋势位置，是红利低波这类长线品种最关键的趋势判断指标。
+</div>
+</div>
+</div>
+<!-- ══════════════ PAGE 5: VALUE ══════════════ -->
+<div class="page" id="pg4">
+<div class="index-tag-bar">
+<div class="itb-left">
+<div class="itb-badge"><span class="diamond">💎</span> 红利低波</div>
+<div><div class="itb-name">中证红利低波风格</div><div class="itb-sub">本页全部指标针对 红利低波</div></div>
+</div>
+<div class="itb-date">2026-06-16 周二</div>
+</div>
+<div class="card">
+<div class="chart-title" style="margin-bottom:14px">VALUE · 股债性价比 + 估值百分位</div>
+<div class="value-top3">
+<div class="vt-box green-bg">
+<div class="vt-label">股息率 DY</div>
+<div class="vt-val green">4.84%</div>
+</div>
+<div class="vt-box purple-bg">
+<div class="vt-label">中国 10Y 国债</div>
+<div class="vt-val purple">1.75%</div>
+</div>
+<div class="vt-box blue-bg">
+<div class="vt-label">差值（DY − 10Y）</div>
+<div class="vt-val blue">+3.10</div>
+<div class="vt-sub">历史 P45</div>
+</div></div>
+<div class="chart-mini">
+<canvas id="spreadChart"></canvas>
+</div>
+<div style="font-size:9px;color:var(--text3);text-align:right;margin-bottom:14px">10 年股债差走势 · 均值 2.952 · 范围 -1.129~6.117</div>
+<div class="val3-row">
+<div class="v3-box">
+<div class="v3-label">滚动 PE（红利低波 · 加权）</div>
+<div class="v3-val blue-num">7.78</div>
+<div class="v3-sub">数据：中证官方 · ©2026-06-15</div>
+</div>
+<div class="v3-box">
+<div class="v3-label">PB（中证红利 · 母指数代理）</div>
+<div class="v3-val purple-num">0.82</div>
+<div class="v3-sub">数据：danjuan · ©2026-06-15</div>
+</div>
+<div class="v3-box">
+<div class="v3-label">加权股息率（红利低波）</div>
+<div class="v3-val green-num">4.84%</div>
+<div class="v3-sub">数据：中证官方 · ©2026-06-15</div>
+</div>
+</div>
+<div class="hint-box">
+💎 口径说明：中证官方仅发布红利低波的 PE 与加权股息率，不发布 PB。红利低波由中证从「中证红利」样本中筛选低波成分股，故此处 PB 取母指数中证红利作为最贴近的代理 — 二者成分高度重叠。PE &lt; 10 + PB &lt; 1 + DY &gt; 4% 历来对应红利风格的"性价比区间"。
+</div>
+<table class="val-table">
+<thead><tr><th>区间</th><th>情绪</th><th>操作建议</th></tr></thead>
+<tbody>
+<tr><td><span class="dot-indicator dot-red"></span>&lt;1 极不划算</td><td>股价过贵</td><td>股票极贵 · 减仓止盈</td></tr>
+<tr><td><span class="dot-indicator dot-orange"></span>1-2 偏不划算</td><td>略贵</td><td>股票偏贵 · 谨慎追高</td></tr>
+<tr><td><span class="dot-indicator dot-yellow"></span>2-3 中性</td><td>性价比正常</td><td>性价比平衡 · 常规定投</td></tr>
+<tr class="active-row"><td><span class="dot-indicator dot-blue"></span>▶ <strong>3-4 划算</strong></td><td><strong>股票占优</strong></td><td><strong>股票占优 · 加大定投</strong> <span class="now-badge">现在</span></td></tr>
+<tr><td><span class="dot-indicator dot-green"></span>&gt;4 极划算</td><td>黄金区间</td><td>极具性价比 · 黄金机会、加大定投</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- ══════════════ PAGE 6: SCORE ══════════════ -->
+<div class="page" id="pg5">
+<div class="index-tag-bar">
+<div class="itb-left">
+<div class="itb-badge"><span class="diamond">💎</span> 红利低波</div>
+<div><div class="itb-name">中证红利低波风格</div><div class="itb-sub">本页全部指标针对 红利低波</div></div>
+</div>
+<div class="itb-date">2026-06-16 周二</div>
+</div>
+<div class="score-big-card">
+<div style="font-size:12px;color:var(--text3);margin-bottom:8px">SCORE · 综合评分 + 计算规则 + 同分回测</div>
+<div style="font-size:12px;color:var(--text3);margin-bottom:14px">操作参考（60 日维度，含免责声明）</div>
+<div class="score-hero-row">
+<div>
+<div class="score-left-num">94.7</div>
+<div class="grade-badge" style="display:inline-flex;margin-top:6px">A</div>
+</div>
+<div class="score-grade" style="flex:1">
+<div class="score-action">极佳买入</div>
+<div class="score-action-sub">极佳买入时机，可大幅加仓</div>
+<div class="score-right-cols" style="margin-top:12px">
+<div class="score-info-box">
+<div class="sib-label">现价</div>
+<div class="sib-val">1.149</div>
+<div class="sib-chg">▼ -1.03%</div>
+</div>
+<div class="score-info-box">
+<div class="sib-label">同分历史样本</div>
+<div class="sib-val">80 天</div>
+<div class="sib-sub">近 60 个交易日</div>
+</div>
+</div>
+</div>
+</div>
+<div class="rules-box">
+<div class="rules-title">📐 评分计算规则（简版）</div>
+<div class="rule-item">① 每个指标独立打分 — RSI / 乖离 / 动量 / KDJ / 量比 / PE-PB / 股债差 / 情绪 等 20+ 项，分别对照历史同区间的 60 个交易日远期收益取均值。</div>
+<div class="rule-item">② 按"历史预测力"加权 — 各指标的权重由 R² 与方差贡献度倒推（power score），越能稳定预测未来收益的指标权重越高。</div>
+<div class="rule-item">③ 取百分位排名 0-100 — 把今日的「加权预期收益」与过去全部历史日做对比，落在第 P 百分位 → 评分 = P。</div>
+<div class="rule-item" style="font-weight:600;margin-top:4px">本质：越高 = 历史上同样的指标组合后，60 日内平均涨得越多。是统计回测结论，非未来预测。</div>
+</div>
+<div class="grade-scale">
+<div class="gs-item">&lt;25 E（弱势）</div>
+<div class="gs-item">25-40 D（偏弱）</div>
+<div class="gs-item">40-55 C（中性）</div>
+<div class="gs-item">55-70 B（良好）</div>
+<div class="gs-item gs-active">≥70 A（极佳）</div>
+</div>
+<div class="dist-title">
+📊 历史同分60日收益分布（80 个样本）
+<span>范围 -1.25% ~ 18.23%</span>
+</div>
+<div class="dist-chart-wrap">
+<canvas id="distChart"></canvas>
+</div>
+<div class="dist-stats">
+<div class="ds"><span class="ds-label">均值 </span><span class="ds-val green">+6.99%</span></div>
+<div class="ds"><span class="ds-label">· 中位 </span><span class="ds-val green">+6.13%</span></div>
+<div class="ds"><span class="ds-label">· 最低 </span><span class="ds-val red">-1.25%</span></div>
+<div class="ds"><span class="ds-label">· 最高 </span><span class="ds-val green">+18.23%</span></div>
+</div>
+<div class="warning-box">
+历史回测、不预测未来：上图为过去 80 个「评分相近时段」之后实际 60 个交易日的真实收益分布，不代表本次或未来同分场景一定会复现，更不构成具体买卖建议。
+</div>
+</div>
+</div>
+<!-- ══════════════ PAGE 7: POSITION ══════════════ -->
+<div class="page" id="pg6">
+<div class="index-tag-bar">
+<div class="itb-left">
+<div class="itb-badge"><span class="diamond">💎</span> 红利低波</div>
+<div><div class="itb-name">中证红利低波风格</div><div class="itb-sub">本页全部指标针对 红利低波</div></div>
+</div>
+<div class="itb-date">2026-06-16 周二</div>
+</div>
+<div class="pos-card">
+<div class="pos-title">POSITION · 价格位置 + 量能 / 强弱细节</div>
+<div class="pos52-label">
+<span>📍 52 周价格位置（年内便宜/贵的相对位置）</span>
+<span>10% · 年内低位</span>
+</div>
+<div class="rainbow-track">
+<div class="rainbow-marker"></div>
+</div>
+<div class="rainbow-ends">
+<span>52w 低点</span>
+<span>中位</span>
+<span>52w 高点</span>
+</div>
+<div class="pos-three">
+<div class="pos-item">
+<div class="pi-label">量比<br>今日成交 ÷ 20日均量</div>
+<div class="pi-val">3.36</div>
+<div class="pi-desc">放量</div>
+</div>
+<div class="pos-item">
+<div class="pi-label">连续天数<br>连续上涨(+)/连续下跌(-)</div>
+<div class="pi-val green">-2</div>
+<div class="pi-desc">连阴</div>
+</div>
+<div class="pos-item">
+<div class="pi-label">年化波动<br>20日收益率标准差 · 年化(%)</div>
+<div class="pi-val black">13.1%</div>
+<div class="pi-desc">越低越稳健</div>
+</div>
+</div>
+<div style="background:var(--orange-light);border:1px solid #fdd5a8;border-radius:8px;padding:12px 14px;margin-top:14px;font-size:10px;color:#7a3c10;line-height:1.8">
+<div>量比 = 今日成交 / 近 20 日均量。> 1.5 = 明显放量，&lt; 0.7 = 缩量。</div>
+<div>连续天数 = 连阳 / 连阴根数；正数为连续上涨，负数为连续下跌，极端值可能预示反转。</div>
+<div>年化波动 = 过去 20 个交易日日收益率标准差 × √252。红利低波长期年化 8-15%，<strong>越低越稳健</strong>，对回撤敏感的资金更友好。</div>
+</div>
+<div style="background:var(--gold-light);border:1px solid #fde68a;border-radius:8px;padding:10px 14px;margin-top:10px;font-size:10px;color:#92400e;line-height:1.6">
+⚠ 免责声明：本图文仅为个人投资笔记，里面的「黄金机会 / 加大定投 / 常规定投 / 谨慎追高 / 止盈控仓」等表述只是按当前股债性价比 + 评分区间映射出的参考动作，不构成对任何具体产品或买卖时点的建议。红利低波属低波长线品种，操作需结合自身资金安排独立判断。
+</div>
+</div>
+</div>
+<!-- ══════════════ PAGE 8: SUMMARY ══════════════ -->
+<div class="page" id="pg7">
+<div class="summary-wrap">
+<div class="sum-header">
+<div class="sum-header-title">📋 每日复盘总结 · 红利低波</div>
+<div class="sum-header-sub">2026-06-16 周二 · 个人记录，非投资建议</div>
+</div>
+<div class="sum-section">
+<div class="sum-sec-title"><span class="emoji">📌</span>中证红利低波大盘数据</div>
+<div class="sum-item">
+<span class="sum-bullet">-</span>
+<span class="sum-text">红利低波 <strong>1.149</strong>，日跌幅 <span class="highlight-red">-1.03%</span>，年线乖离 <strong>-3.05%</strong></span>
+</div>
+</div>
+<div class="sum-section">
+<div class="sum-sec-title"><span class="emoji">📊</span>估值维度</div>
+<div class="sum-item"><span class="sum-bullet">-</span><span class="sum-text">PE <strong>7.78</strong></span></div>
+<div class="sum-item"><span class="sum-bullet">-</span><span class="sum-text">PB <strong>0.82</strong></span></div>
+<div class="sum-item"><span class="sum-bullet">-</span><span class="sum-text">股息率 <strong class="highlight">4.84%</strong></span></div>
+<div class="pe-formula">PE&lt;10 + PB&lt;1 + DY&gt;4% = 红利风格性价比区间 ✅</div>
+</div>
+<div class="sum-section">
+<div class="sum-sec-title"><span class="emoji">📐</span>股债性价比</div>
+<div class="sum-item"><span class="sum-bullet">-</span><span class="sum-text">股息率 <strong>4.84%</strong> − 10Y国债 <strong>1.75%</strong> = <strong class="highlight">3.10%</strong></span></div>
+<div class="sum-item"><span class="sum-bullet">-</span><span class="sum-text">处于历史 <strong>P45</strong>，均值 2.952</span></div>
+</div>
+<div class="sum-section">
+<div class="sum-sec-title"><span class="emoji">✅</span>技术面</div>
+<div class="sum-item"><span class="sum-bullet">-</span><span class="sum-text">RSI(14) = <strong>40.9</strong>（接近超卖，常规定投）</span></div>
+<div class="sum-item"><span class="sum-bullet">-</span><span class="sum-text">布林带 BB% = <strong>17%</strong>（接近下轨，超跌）</span></div>
+<div class="sum-item"><span class="sum-bullet">-</span><span class="sum-text">52周位置 = <strong class="highlight-red">10%</strong>（年内低位！）</span></div>
+<div class="sum-item"><span class="sum-bullet">-</span><span class="sum-text">拥挤度 <strong>48.8</strong>（正常，不挤）</span></div>
+<div class="sum-item"><span class="sum-bullet">-</span><span class="sum-text">年化波动 <strong>13.1%</strong>（稳健风格）</span></div>
+<div class="sum-item"><span class="sum-bullet">-</span><span class="sum-text">综合评分 <strong class="highlight-red">95</strong>（A级 · 极佳买入区间）</span></div>
+</div>
+<div class="sum-comment">
+盘面短期情绪冰点（J值个位数），长线估值历史低位，这里输时间但大概率不输钱。若再往下砸出恐慌盘（比如跌破 1.140），会是极佳的左侧捞货点。
+</div>
+<div class="sum-risk">
+⚠ 风险提示：历史回测不代表未来表现，市场波动存在不确定性，投资需理性，建议分散配置，避免单一资产过度集中。
+</div>
+</div>
+</div>
+</div><!-- /main -->
+<div class="page-footer">
+<div class="footer-source">数据：中证指数 / 蛋卷基金 / Eastmoney / Danjuan (PE/PB/DY) · 个人记录-非投资建议</div>
+<div>
+<div class="footer-brand">复利时光 @小红书</div>
+<div class="footer-brand-sub">每日开盘 · 一图看尽</div>
+</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+// ─── Page switching ───
+function switchPage(idx) {
+document.querySelectorAll('.page').forEach((p, i) => p.classList.toggle('active', i === idx));
+document.querySelectorAll('.page-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+const sub = document.querySelectorAll('.page-tab')[idx]?.getAttribute('data-sub') || '';
+document.getElementById('page-subtitle').textContent = sub;
+if (idx === 3 && !window._priceDrawn) { drawPriceChart(); window._priceDrawn = true; }
+if (idx === 4 && !window._spreadDrawn) { drawSpreadChart(); window._spreadDrawn = true; }
+if (idx === 5 && !window._distDrawn) { drawDistChart(); window._distDrawn = true; }
+}
 // ─── Date ───
 (function() {
-  const days = ['日','一','二','三','四','五','六'];
-  const d = new Date('2026-06-16');
-  document.getElementById('today-date').textContent = `2026-06-16 周${days[d.getDay()]}`;
+const days = ['日','一','二','三','四','五','六'];
+const d = new Date('2026-06-16');
+document.getElementById('today-date').textContent = `2026-06-16 周${days[d.getDay()]}`;
 })();
-
 // ─── Price Chart ───
 function drawPriceChart() {
-  const ctx = document.getElementById('priceChart').getContext('2d');
-  // Simulated 红利低波 data from 2019 to 2026-06-16, roughly matching the upward trend shown
-  const labels = [];
-  const prices = [];
-  const ma250 = [];
-
-  // Generate synthetic data matching the chart shape
-  let price = 0.52;
-  let startDate = new Date('2019-01-02');
-  const endDate = new Date('2026-06-16');
-  const priceArr = [];
-
-  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-    if ([0,6].includes(d.getDay())) continue;
-    const y = d.getFullYear() + d.getMonth()/12;
-    // trend + noise
-    const trend = 0.52 + (y - 2019) * 0.115;
-    const noise = (Math.random() - 0.5) * 0.035;
-    price = trend + noise;
-    priceArr.push({ date: d.toISOString().slice(0,10), price });
-  }
-
-  // MA250
-  const maArr = priceArr.map((pt, i) => {
-    if (i < 249) return null;
-    const slice = priceArr.slice(i-249, i+1);
-    return slice.reduce((s, x) => s + x.price, 0) / 250;
-  });
-
-  // Sample every 5th point for display
-  const step = 5;
-  const sampledLabels = [];
-  const sampledPrices = [];
-  const sampledMA = [];
-  const sampledColors = [];
-
-  for (let i = step; i < priceArr.length; i += step) {
-    sampledLabels.push(priceArr[i].date.slice(0,7));
-    sampledPrices.push(+priceArr[i].price.toFixed(4));
-    sampledMA.push(maArr[i] ? +maArr[i].toFixed(4) : null);
-    sampledColors.push(priceArr[i].price >= priceArr[i-step]?.price ? '#e8473f' : '#2aad6e');
-  }
-
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: sampledLabels,
-      datasets: [
-        {
-          label: '红利低波',
-          data: sampledPrices,
-          borderColor: '#2aad6e',
-          backgroundColor: 'rgba(42,173,110,0.08)',
-          borderWidth: 1.5,
-          pointRadius: 0,
-          fill: true,
-          tension: 0.3,
-        },
-        {
-          label: '250日均线',
-          data: sampledMA,
-          borderColor: '#f07c3a',
-          borderWidth: 2,
-          borderDash: [6, 4],
-          pointRadius: 0,
-          fill: false,
-          tension: 0.3,
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
-      scales: {
-        x: {
-          ticks: { maxTicksLimit: 8, font: { size: 9 }, color: '#aaa' },
-          grid: { color: '#f0ece6' }
-        },
-        y: {
-          ticks: { font: { size: 9 }, color: '#aaa' },
-          grid: { color: '#f0ece6' }
-        }
-      }
-    }
-  });
+const ctx = document.getElementById('priceChart').getContext('2d');
+// Simulated 红利低波 data from 2019 to 2026-06-16, roughly matching the upward trend shown
+const labels = [];
+const prices = [];
+const ma250 = [];
+// Generate synthetic data matching the chart shape
+let price = 0.52;
+let startDate = new Date('2019-01-02');
+const endDate = new Date('2026-06-16');
+const priceArr = [];
+for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+if ([0,6].includes(d.getDay())) continue;
+const y = d.getFullYear() + d.getMonth()/12;
+// trend + noise
+const trend = 0.52 + (y - 2019) * 0.115;
+const noise = (Math.random() - 0.5) * 0.035;
+price = trend + noise;
+priceArr.push({ date: d.toISOString().slice(0,10), price });
 }
-
+// MA250
+const maArr = priceArr.map((pt, i) => {
+if (i < 249) return null;
+const slice = priceArr.slice(i-249, i+1);
+return slice.reduce((s, x) => s + x.price, 0) / 250;
+});
+// Sample every 5th point for display
+const step = 5;
+const sampledLabels = [];
+const sampledPrices = [];
+const sampledMA = [];
+const sampledColors = [];
+for (let i = step; i < priceArr.length; i += step) {
+  sampledLabels.push(priceArr[i].date.slice(0,7));
+sampledPrices.push(+priceArr[i].price.toFixed(4));
+sampledMA.push(maArr[i] ? +maArr[i].toFixed(4) : null);
+sampledColors.push(priceArr[i].price >= priceArr[i-step]?.price ? '#e8473f' : '#2aad6e');
+}
+new Chart(ctx, {
+type: 'line',
+data: {
+labels: sampledLabels,
+datasets: [
+{
+label: '红利低波',
+data: sampledPrices,
+borderColor: '#2aad6e',
+backgroundColor: 'rgba(42,173,110,0.08)',
+borderWidth: 1.5,
+pointRadius: 0,
+fill: true,
+tension: 0.3,
+},
+{
+label: '250日均线',
+data: sampledMA,
+borderColor: '#f07c3a',
+borderWidth: 2,
+borderDash: [6, 4],
+pointRadius: 0,
+fill: false,
+tension: 0.3,
+}
+]
+},
+options: {
+responsive: true,
+maintainAspectRatio: false,
+plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+scales: {
+x: {
+ticks: { maxTicksLimit: 8, font: { size: 9 }, color: '#aaa' },
+grid: { color: '#f0ece6' }
+},
+y: {
+ticks: { font: { size: 9 }, color: '#aaa' },
+grid: { color: '#f0ece6' }
+}
+}
+}
+});
+}
 // ─── Spread Chart ───
 function drawSpreadChart() {
-  const ctx = document.getElementById('spreadChart').getContext('2d');
-  const data = [2.1,2.3,1.8,2.0,1.6,1.9,2.4,2.8,3.2,2.9,3.4,3.1,2.7,2.5,3.0,2.95,3.1,2.8,3.0,3.1];
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: Array.from({length:data.length}, (_,i) => `${2018+Math.floor(i/3)}`),
-      datasets: [{
-        data,
-        borderColor: '#f07c3a',
-        backgroundColor: 'rgba(240,124,58,0.12)',
-        borderWidth: 2,
-        pointRadius: 0,
-        fill: true,
-        tension: 0.4,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { enabled: false } },
-      scales: {
-        x: { ticks: { font:{size:8}, color:'#aaa', maxTicksLimit:6 }, grid: { display: false } },
-        y: { ticks: { font:{size:8}, color:'#aaa' }, grid: { color: '#f0ece6' } }
-      }
-    }
-  });
+const ctx = document.getElementById('spreadChart').getContext('2d');
+const data = [2.1,2.3,1.8,2.0,1.6,1.9,2.4,2.8,3.2,2.9,3.4,3.1,2.7,2.5,3.0,2.95,3.1,2.8,3.0,3.1];
+new Chart(ctx, {
+type: 'line',
+data: {
+labels: Array.from({length:data.length}, (_,i) => `${2018+Math.floor(i/3)}`),
+datasets: [{
+data,
+borderColor: '#f07c3a',
+backgroundColor: 'rgba(240,124,58,0.12)',
+borderWidth: 2,
+pointRadius: 0,
+fill: true,
+tension: 0.4,
+}]
+},
+options: {
+responsive: true, maintainAspectRatio: false,
+plugins: { legend: { display: false }, tooltip: { enabled: false } },
+scales: {
+x: { ticks: { font:{size:8}, color:'#aaa', maxTicksLimit:6 }, grid: { display: false } },
+y: { ticks: { font:{size:8}, color:'#aaa' }, grid: { color: '#f0ece6' } }
 }
-
+}
+});
+}
 // ─── Distribution Chart ───
 function drawDistChart() {
-  const ctx = document.getElementById('distChart').getContext('2d');
-  const ranges = ['-1.25~1.53%','1.53~4.32%','4.32~7.1%','7.1~9.88%','9.88~12.66%','12.66~15.45%','15.45~18.23%'];
-  const counts = [13, 22, 7, 13, 11, 7, 7];
-
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ranges,
-      datasets: [{
-        data: counts,
-        backgroundColor: '#e8473f',
-        borderRadius: 4,
-        barPercentage: 0.7,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: ctx => `${ctx.raw} 次` } }
-      },
-      scales: {
-        x: { ticks: { font:{size:8}, color:'#888', maxRotation: 30 }, grid: { display:false } },
-        y: {
-          ticks: { font:{size:8}, color:'#aaa', stepSize:5 },
-          grid: { color:'#f0ece6' },
-          title: { display:true, text:'样本数', font:{size:9}, color:'#aaa' }
-      }
-      }
-    }
-  });
+const ctx = document.getElementById('distChart').getContext('2d');
+const ranges = ['-1.25~1.53%','1.53~4.32%','4.32~7.1%','7.1~9.88%','9.88~12.66%','12.66~15.45%','15.45~18.23%'];
+const counts = [13, 22, 7, 13, 11, 7, 7];
+new Chart(ctx, {
+type: 'bar',
+data: {
+labels: ranges,
+datasets: [{
+data: counts,
+backgroundColor: '#e8473f',
+borderRadius: 4,
+barPercentage: 0.7,
+}]
+},
+options: {
+responsive: true, maintainAspectRatio: false,
+plugins: {
+legend: { display: false },
+tooltip: { callbacks: { label: ctx => `${ctx.raw} 次` } }
+},
+scales: {
+x: { ticks: { font:{size:8}, color:'#888', maxRotation: 30 }, grid: { display:false } },
+y: {
+ticks: { font:{size:8}, color:'#aaa', stepSize:5 },
+grid: { color:'#f0ece6' },
+title: { display:true, text:'样本数', font:{size:9}, color:'#aaa' }
+}
+}
+}
+});
 }
 </script>
 </body>
-    <script src="./dividend_pulse_auto_update.js"></script>
-  </html>
+  <script src="./dividend_pulse_auto_update.js"></script>
+</html>
