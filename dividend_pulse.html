@@ -1,0 +1,169 @@
+if (idx === 3 && !window._priceDrawn) { drawPriceChart(); window._priceDrawn = true; }
+  if (idx === 4 && !window._spreadDrawn) { drawSpreadChart(); window._spreadDrawn = true; }
+  if (idx === 5 && !window._distDrawn) { drawDistChart(); window._distDrawn = true; }
+}
+
+// ─── Date ───
+(function() {
+  const days = ['日','一','二','三','四','五','六'];
+  const d = new Date('2026-06-16');
+  document.getElementById('today-date').textContent = `2026-06-16 周${days[d.getDay()]}`;
+})();
+
+// ─── Price Chart ───
+function drawPriceChart() {
+  const ctx = document.getElementById('priceChart').getContext('2d');
+  // Simulated 红利低波 data from 2019 to 2026-06-16, roughly matching the upward trend shown
+  const labels = [];
+  const prices = [];
+  const ma250 = [];
+
+  // Generate synthetic data matching the chart shape
+  let price = 0.52;
+  let startDate = new Date('2019-01-02');
+  const endDate = new Date('2026-06-16');
+  const priceArr = [];
+
+  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+    if ([0,6].includes(d.getDay())) continue;
+    const y = d.getFullYear() + d.getMonth()/12;
+    // trend + noise
+    const trend = 0.52 + (y - 2019) * 0.115;
+    const noise = (Math.random() - 0.5) * 0.035;
+    price = trend + noise;
+    priceArr.push({ date: d.toISOString().slice(0,10), price });
+  }
+
+  // MA250
+  const maArr = priceArr.map((pt, i) => {
+    if (i < 249) return null;
+    const slice = priceArr.slice(i-249, i+1);
+    return slice.reduce((s, x) => s + x.price, 0) / 250;
+  });
+
+  // Sample every 5th point for display
+  const step = 5;
+  const sampledLabels = [];
+  const sampledPrices = [];
+  const sampledMA = [];
+  const sampledColors = [];
+
+  for (let i = step; i < priceArr.length; i += step) {
+    sampledLabels.push(priceArr[i].date.slice(0,7));
+    sampledPrices.push(+priceArr[i].price.toFixed(4));
+    sampledMA.push(maArr[i] ? +maArr[i].toFixed(4) : null);
+    sampledColors.push(priceArr[i].price >= priceArr[i-step]?.price ? '#e8473f' : '#2aad6e');
+  }
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: sampledLabels,
+      datasets: [
+        {
+          label: '红利低波',
+          data: sampledPrices,
+          borderColor: '#2aad6e',
+          backgroundColor: 'rgba(42,173,110,0.08)',
+          borderWidth: 1.5,
+          pointRadius: 0,
+          fill: true,
+          tension: 0.3,
+        },
+        {
+          label: '250日均线',
+          data: sampledMA,
+          borderColor: '#f07c3a',
+          borderWidth: 2,
+          borderDash: [6, 4],
+          pointRadius: 0,
+          fill: false,
+          tension: 0.3,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+      scales: {
+        x: {
+          ticks: { maxTicksLimit: 8, font: { size: 9 }, color: '#aaa' },
+          grid: { color: '#f0ece6' }
+        },
+        y: {
+          ticks: { font: { size: 9 }, color: '#aaa' },
+          grid: { color: '#f0ece6' }
+        }
+      }
+    }
+  });
+}
+
+// ─── Spread Chart ───
+function drawSpreadChart() {
+  const ctx = document.getElementById('spreadChart').getContext('2d');
+  const data = [2.1,2.3,1.8,2.0,1.6,1.9,2.4,2.8,3.2,2.9,3.4,3.1,2.7,2.5,3.0,2.95,3.1,2.8,3.0,3.1];
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: Array.from({length:data.length}, (_,i) => `${2018+Math.floor(i/3)}`),
+      datasets: [{
+        data,
+        borderColor: '#f07c3a',
+        backgroundColor: 'rgba(240,124,58,0.12)',
+        borderWidth: 2,
+        pointRadius: 0,
+        fill: true,
+        tension: 0.4,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      scales: {
+        x: { ticks: { font:{size:8}, color:'#aaa', maxTicksLimit:6 }, grid: { display: false } },
+        y: { ticks: { font:{size:8}, color:'#aaa' }, grid: { color: '#f0ece6' } }
+      }
+    }
+  });
+}
+
+// ─── Distribution Chart ───
+function drawDistChart() {
+  const ctx = document.getElementById('distChart').getContext('2d');
+  const ranges = ['-1.25~1.53%','1.53~4.32%','4.32~7.1%','7.1~9.88%','9.88~12.66%','12.66~15.45%','15.45~18.23%'];
+  const counts = [13, 22, 7, 13, 11, 7, 7];
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ranges,
+      datasets: [{
+        data: counts,
+        backgroundColor: '#e8473f',
+        borderRadius: 4,
+        barPercentage: 0.7,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => `${ctx.raw} 次` } }
+      },
+      scales: {
+        x: { ticks: { font:{size:8}, color:'#888', maxRotation: 30 }, grid: { display:false } },
+        y: {
+          ticks: { font:{size:8}, color:'#aaa', stepSize:5 },
+          grid: { color:'#f0ece6' },
+          title: { display:true, text:'样本数', font:{size:9}, color:'#aaa' }
+      }
+      }
+    }
+  });
+}
+</script>
+</body>
+    <script src="./dividend_pulse_auto_update.js"></script>
+  </html>
